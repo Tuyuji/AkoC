@@ -7,7 +7,7 @@ For info about Ako see [Ako's README](https://github.com/Tuyuji/Ako/blob/main/RE
 While a majority of this library works it's not properly tested, if you do intend to use this library and encounter 
 issues please open an issue on the GitHub repository.
 
-It's often tested with Valgrind so as long as you properly call free on the data on own you should be fine.
+It's often tested with Valgrind so as long as you properly call free on the data you own you should be fine.
 
 ## Quick start
 ```c++
