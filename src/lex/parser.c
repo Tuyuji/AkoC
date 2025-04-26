@@ -4,6 +4,10 @@
 #include "../private.h"
 
 #include <assert.h>
+#include <string.h>
+
+#include "../mem/dyn_string.h"
+#include "ako/ako.h"
 
 typedef struct
 {
@@ -53,6 +57,8 @@ static ako_elem_t* _parse_value(state_t* state)
 {
     token_t* peeked = peek(state, 0);
     location_t start_loc;
+    dyn_string_t str; //Used in short type
+    ako_elem_t* ret;
     switch (peeked->type)
     {
     case AKO_TT_OPEN_D_BRACE:
@@ -127,6 +133,37 @@ static ako_elem_t* _parse_value(state_t* state)
     case AKO_TT_STRING:
         _consume(state);
         return ako_elem_create_string(peeked->value_string);
+    case AKO_TT_AND:
+        //need identifier next
+        if (!CHECK_TYPE(peek(state, 1), AKO_TT_IDENT))
+        {
+            //Invalid start
+            return ako_elem_create_errorf("ShortType needs to start with an Identifier, error at %zu:%zu",
+                peeked->start.line,
+                peeked->start.column);
+        }
+
+        _consume(state);
+        peeked = peek(state, 0);
+        str = dyn_string_create(strlen(peeked->value_string));
+
+        while (CHECK_TYPE(peek(state, 0), AKO_TT_IDENT))
+        {
+            dyn_string_append(&str, _consume(state)->value_string);
+            peeked = peek(state, 0);
+            if (peeked == NULL || peeked->type != AKO_TT_DOT)
+            {
+                break;
+            }
+            //consume dot
+            _consume(state);
+            dyn_string_append(&str, ".");
+        }
+
+        ret = ako_elem_create_shorttype(str.data);
+        ako_free(str.data);
+        return ret;
+
     default:
         return ako_elem_create_errorf("Unsupported type at %zu:%zu -> %zu:%zu",
             peeked->start.line,
@@ -134,6 +171,8 @@ static ako_elem_t* _parse_value(state_t* state)
             peeked->end.line,
             peeked->end.column);
     }
+
+    return ako_elem_create_errorf("Unexpected escape from switch statement.");
 }
 
 static ako_elem_t* _parse_table_element(state_t* state, ako_elem_t* table)
@@ -239,7 +278,7 @@ static ako_elem_t* _parse_table_element(state_t* state, ako_elem_t* table)
         if (ako_elem_is_error(value))
         {
             //Uh oh, just return the error
-            ako_elem_destroy(current_table);
+            //Don't destroy any tables as who ever called this function will destroy the tree anyway.
             return value;
         }
 

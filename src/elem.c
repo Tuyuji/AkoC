@@ -73,7 +73,7 @@ void ako_elem_set_type(ako_elem_t* elem, ako_type_t new_type){
 	if(elem_is_table_array && !new_type_is_table_array){
 		//new type wont make use of the dyn array
 		dyn_array_destroy(&elem->a);
-		memset(&elem->a, '\0', sizeof(dyn_array_t));
+		elem->a = (dyn_array_t){0};
 	}
 	else if (!elem_is_table_array && new_type_is_table_array){
 		//elem isnt a table or array
@@ -269,7 +269,7 @@ void ako_elem_set_float(ako_elem_t* elem, ako_float value){
 void ako_elem_set_shorttype(ako_elem_t* elem, const char* str){
 	assert(elem != NULL);
 	ako_elem_set_type(elem, AT_SHORTTYPE);
-	elem->str = str;
+	elem->str = string_cpy(str);
 }
 
 void ako_elem_set_bool(ako_elem_t* elem, bool value){
