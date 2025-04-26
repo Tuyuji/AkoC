@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 project(akoc
         LANGUAGES C
         VERSION 0.1.0

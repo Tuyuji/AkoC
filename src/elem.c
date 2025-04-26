@@ -269,7 +269,7 @@ void ako_elem_set_float(ako_elem_t* elem, ako_float value){
 void ako_elem_set_shorttype(ako_elem_t* elem, const char* str){
 	assert(elem != NULL);
 	ako_elem_set_type(elem, AT_SHORTTYPE);
-	elem->str = str;
+	elem->str = string_cpy(str);
 }
 
 void ako_elem_set_bool(ako_elem_t* elem, bool value){

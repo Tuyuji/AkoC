@@ -116,10 +116,38 @@ int parse_string_esc()
 	return 0;
 }
 
+int parse_short_type()
+{
+	ako_elem_t* egg = ako_parse("mi &ku");
+	ASSERT_ELEM(egg);
+
+	ako_elem_t* mi = ako_elem_table_get(egg, "mi");
+	ASSERT_ELEM(mi);
+
+	if (ako_elem_get_type(mi) != AT_SHORTTYPE)
+	{
+		printf("Given mi is not a short type\n");
+		ako_elem_destroy(egg);
+		return 1;
+	}
+
+	const char* value = ako_elem_get_shorttype(mi);
+	if (strcmp(value, "ku") != 0)
+	{
+		printf("Expected ku got %s\n", value);
+		ako_elem_destroy(egg);
+		return 1;
+	}
+
+	ako_elem_destroy(egg);
+	return 0;
+}
+
 static test_t tests[] = {
 	{"Basic parsing", &basic_parse},
 	{"Float parsing", &parse_float},
 	{"String escape parsing", &parse_string_esc},
+	{"Short type parsing", &parse_short_type},
 	{NULL, NULL} // Null terminator
 };
 
