@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 #pragma once
-#include <bits/stdint-intn.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef int64_t ako_int;
 typedef double ako_float;
