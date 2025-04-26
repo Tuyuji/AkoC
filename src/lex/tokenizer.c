@@ -10,6 +10,11 @@
 #include "ako/ako.h"
 #include "token.h"
 
+#if defined(_MSC_VER)
+#include <malloc.h>
+#define alloca _alloca
+#endif
+
 typedef struct state{
 	dyn_array_t tokens;
 	const char* source;
