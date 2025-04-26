@@ -26,10 +26,10 @@ void dyn_array_destroy(dyn_array_t* array){
 void* dyn_array_elem_location(dyn_array_t* array, size_t index) {
 	da_assert(array != NULL, "Null array pointer.");
 
-	return array->internal.data + (array->internal.element_size * index);
+	return (uint8_t*)array->internal.data + (array->internal.element_size * index);
 }
 
-void  dyn_array_resize(dyn_array_t* array, size_t new_size){
+void dyn_array_resize(dyn_array_t* array, size_t new_size){
 	da_assert(array != NULL, "Null pointer.");
 	da_assert(array->internal.element_size != 0, "Element size cant be zero.");
 	da_assert(!(new_size < array->internal.total_size), "Cant shrink arrays.");
@@ -82,10 +82,10 @@ void dyn_array_remove(dyn_array_t* array, size_t index){
 	da_assert(array != NULL, "Null array pointer.");
 	da_assert(array->size > index, "Index outside array size.");
 
-	void* element_location = array->internal.data + (array->internal.element_size * index);
+	void* element_location = (uint8_t*)array->internal.data + (array->internal.element_size * index);
 
 	if (index < array->size - 1) {
-		void* next_element_location = element_location + array->internal.element_size;
+		void* next_element_location = (uint8_t*)element_location + array->internal.element_size;
 		size_t bytes_to_move = (array->size - index - 1) * array->internal.element_size;
 		memmove(element_location, next_element_location, bytes_to_move);
 	}

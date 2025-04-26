@@ -1,7 +1,6 @@
 // Copyright (c) 2025 Tuyuji, Reece Hagan
 // SPDX-License-Identifier: MIT
 #include <ako/ako.h>
-#include <alloca.h>
 #include <assert.h>
 #include <malloc.h>
 #include <string.h>
