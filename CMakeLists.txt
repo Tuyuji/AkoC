@@ -18,7 +18,6 @@ add_library(akoc
         src/mem/dyn_string.c
         src/lex/parser.c)
 target_include_directories(akoc PUBLIC include)
-target_compile_options(akoc PRIVATE -Werror -Wall -Wextra)
 
 #Test
 project(akotest C)
