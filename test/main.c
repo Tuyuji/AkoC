@@ -11,6 +11,7 @@ typedef struct
     int (*func)();
 } test_t;
 
+
 // Null term list
 int test_runner(const test_t *tests)
 {
@@ -90,6 +91,24 @@ int basic_parse()
 {
     ako_elem_t *egg = ako_parse("window.size 180x190");
     ASSERT_ELEM(egg);
+
+    ako_elem_destroy(egg);
+    return 0;
+}
+
+int basic_value_first()
+{
+    ako_elem_t *egg = ako_parse("+thing");
+    ASSERT_ELEM(egg);
+
+    ako_elem_t *thing = ako_elem_table_get(egg, "thing");
+    ASSERT_ELEM(thing);
+    if (ako_elem_get_bool(thing) != true)
+    {
+        printf("Expected thing to be true\n");
+        ako_elem_destroy(egg);
+        return 1;
+    }
 
     ako_elem_destroy(egg);
     return 0;
@@ -205,8 +224,26 @@ int basic_serialise()
     return 0;
 }
 
+/*int unicode_parse()
+{
+    ako_elem_t *egg = ako_parse("song \"ネトゲ廃人シュプレヒコール\"\nartist \"TENKOMORI\"\n");
+    ASSERT_ELEM(egg);
+
+    ako_elem_t *song = ako_elem_table_get(egg, "song");
+    ASSERT_ELEM(song);
+    ASSERT_ELEM_STR(song, "ネトゲ廃人シュプレヒコール");
+
+    ako_elem_t *artist = ako_elem_table_get(egg, "artist");
+    ASSERT_ELEM(artist);
+    ASSERT_ELEM_STR(artist, "TENKOMORI");
+
+    ako_elem_destroy(egg);
+    return 0;
+}*/
+
 static test_t tests[] = {
     {"Basic parsing", &basic_parse},
+    {"Basic value first parsing", &basic_value_first},
     {"Float parsing", &parse_float},
     {"String escape parsing", &parse_string_esc},
     {"Short type parsing", &parse_short_type},
@@ -214,6 +251,10 @@ static test_t tests[] = {
 
     // Serialisation tests
     {"Basic serialisation", &basic_serialise},
+
+    // Unicode
+    // {"Unicode parsing", &unicode_parse},
+
     {NULL, NULL} // Null terminator
 };
 

@@ -268,11 +268,13 @@ dyn_array_t ako_tokenize(const char *source, char **err)
         case '+':
             consume(state);
             token.type = AKO_TT_PLUS;
+            token.value_int = 1;
             add_token(state, token);
             continue;
         case '-':
             consume(state);
             token.type = AKO_TT_MINUS;
+            token.value_int = 0;
             add_token(state, token);
             continue;
         case ';':

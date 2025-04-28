@@ -182,7 +182,7 @@ static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
     }
 
     token_t *value_first = NULL;
-    if (CHECK_TYPE(peeked, AKO_TT_BOOL) || CHECK_TYPE(peeked, AKO_TT_SEMICOLON))
+    if (CHECK_TYPE(peeked, AKO_TT_MINUS) || CHECK_TYPE(peeked, AKO_TT_PLUS) || CHECK_TYPE(peeked, AKO_TT_SEMICOLON))
     {
         value_first = _consume(state);
     }
@@ -250,7 +250,8 @@ static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
         // value is first
         switch (value_first->type)
         {
-        case AKO_TT_BOOL:
+        case AKO_TT_PLUS:
+        case AKO_TT_MINUS:
             ako_elem_table_add(current_table, ct_id, ako_elem_create_bool(value_first->value_int));
             break;
         case AKO_TT_SEMICOLON:
@@ -302,7 +303,8 @@ static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces)
         }
 
         bool has_valid_first_token = (peeked->type == AKO_TT_IDENT || peeked->type == AKO_TT_STRING ||
-                                      peeked->type == AKO_TT_BOOL || peeked->type == AKO_TT_SEMICOLON);
+                                      peeked->type == AKO_TT_PLUS || peeked->type == AKO_TT_MINUS ||
+                                      peeked->type == AKO_TT_SEMICOLON);
 
         if (!has_valid_first_token)
         {
