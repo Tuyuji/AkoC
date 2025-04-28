@@ -57,8 +57,9 @@ void dyn_string_append_fmt(dyn_string_t *str, const char *fmt, ...)
 
     va_list args_copy;
     va_copy(args_copy, args);
+
     size_t len = vsnprintf(NULL, 0, fmt, args_copy);
-    va_end(args);
+    va_end(args_copy);
 
     dyn_string_realloc(str, str->size + len + 1);
 
