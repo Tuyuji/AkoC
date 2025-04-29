@@ -253,29 +253,29 @@ int basic_serialise()
     return 0;
 }*/
 
+//
+const char* sample_ako =
+"song [\n"
+"    name \"The MMORPG ADDICTS ANTHEM\"\n"
+"    artists [[\n"
+"        [\n"
+"            name \"TENKOMORI\"\n"
+"            links [[\n"
+"                \"a\" \"b\" \"c\"\n"
+"            ]]\n"
+"        ]\n"
+"        [\n"
+"            name \"Hatsune Miku\"\n"
+"            links [[\n"
+"                \"e\" \"f\" \"g\"\n"
+"            ]]\n"
+"        ]\n"
+"    ]]\n"
+"]\n";
+
 int util_get()
 {
-    ako_elem_t* egg = ako_parse(
-        // language=ako
-        R"(
-song [
-    name "The MMORPG ADDICTS ANTHEM"
-    artists [[
-        [
-            name "TENKOMORI"
-            links [[
-                "a" "b" "c"
-            ]]
-        ]
-        [
-            name "Hatsune Miku"
-            links [[
-                "e" "f" "g"
-            ]]
-        ]
-    ]]
-]
-)");
+    ako_elem_t* egg = ako_parse(sample_ako);
     ASSERT_ELEM(egg);
 
     ASSERT_ELEM_STR(ako_elem_get(egg, "song.artists.0.links.1"), "b");
