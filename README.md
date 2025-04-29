@@ -24,11 +24,17 @@ int main()
         return 1;
     }
     
+    //You can get elements like this:
     ako_elem_t* win = ako_elem_table_get(root, "window");
     ako_elem_t* size = ako_elem_table_get(win, "size");
     
     ako_int w = ako_elem_get_int(ako_elem_array_get(size, 0));
     ako_int h = ako_elem_get_int(ako_elem_array_get(size, 1));
+    
+    //Or like this, you should make sure ako_elem_get isn't null as 
+    //ako_elem_get_int will assert if you pass it a NULL ptr.
+    w = ako_elem_get_int(ako_elem_get(root, "window.size.0"));
+    h = ako_elem_get_int(ako_elem_get(root, "window.size.1"));
     
     printf("Window size: %d x %d\n", w, h);
     
