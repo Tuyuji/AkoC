@@ -71,6 +71,10 @@ static ako_elem_t* _parse_value(state_t* state)
     case AKO_TT_BOOL:
         _consume(state);
         return ako_elem_create_bool(peeked->value_int);
+    case AKO_TT_PLUS:
+    case AKO_TT_MINUS:
+        _consume(state);
+        return ako_elem_create_bool(peeked->value_int);
     case AKO_TT_INT:
     case AKO_TT_FLOAT:
         start_loc = peeked->start;
@@ -160,7 +164,6 @@ static ako_elem_t* _parse_value(state_t* state)
         ret = ako_elem_create_shorttype(str.data);
         ako_free(str.data);
         return ret;
-
     default:
         return ako_elem_create_errorf("Unsupported type at %zu:%zu -> %zu:%zu", peeked->start.line,
                                       peeked->start.column, peeked->end.line, peeked->end.column);

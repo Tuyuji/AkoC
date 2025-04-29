@@ -110,6 +110,19 @@ int basic_value_first()
     }
 
     ako_elem_destroy(egg);
+
+    //now try: thing+, not really a VT but its the same idea
+    egg = ako_parse("thing+");
+    ASSERT_ELEM(egg);
+    thing = ako_elem_table_get(egg, "thing");
+    ASSERT_ELEM(thing);
+    if (ako_elem_get_bool(thing) != true)
+    {
+        printf("Expected thing to be true\n");
+        ako_elem_destroy(egg);
+        return 1;
+    }
+    ako_elem_destroy(egg);
     return 0;
 }
 
