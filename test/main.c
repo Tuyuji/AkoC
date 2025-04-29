@@ -7,15 +7,14 @@
 
 typedef struct
 {
-    const char *name;
+    const char* name;
     int (*func)();
 } test_t;
 
-
 // Null term list
-int test_runner(const test_t *tests)
+int test_runner(const test_t* tests)
 {
-    test_t *current_test = (test_t *)tests;
+    test_t* current_test = (test_t*)tests;
 
     while (current_test->name != NULL)
     {
@@ -31,7 +30,7 @@ int test_runner(const test_t *tests)
     return 0;
 }
 
-int assert_elem_valid(ako_elem_t *elem)
+int assert_elem_valid(ako_elem_t* elem)
 {
     if (elem == NULL)
     {
@@ -49,7 +48,7 @@ int assert_elem_valid(ako_elem_t *elem)
     return 0;
 }
 
-static int assert_str_eq(ako_elem_t *a, const char *expected)
+static int assert_str_eq(ako_elem_t* a, const char* expected)
 {
     if (a == NULL)
     {
@@ -64,7 +63,7 @@ static int assert_str_eq(ako_elem_t *a, const char *expected)
         return 1;
     }
 
-    const char *value = ako_elem_get_string(a);
+    const char* value = ako_elem_get_string(a);
     if (strcmp(value, expected) != 0)
     {
         printf("assert_str_eq Failed, expected %s, got %s\n", expected, value);
@@ -89,7 +88,7 @@ static int assert_str_eq(ako_elem_t *a, const char *expected)
 
 int basic_parse()
 {
-    ako_elem_t *egg = ako_parse("window.size 180x190");
+    ako_elem_t* egg = ako_parse("window.size 180x190");
     ASSERT_ELEM(egg);
 
     ako_elem_destroy(egg);
@@ -98,10 +97,10 @@ int basic_parse()
 
 int basic_value_first()
 {
-    ako_elem_t *egg = ako_parse("+thing");
+    ako_elem_t* egg = ako_parse("+thing");
     ASSERT_ELEM(egg);
 
-    ako_elem_t *thing = ako_elem_table_get(egg, "thing");
+    ako_elem_t* thing = ako_elem_table_get(egg, "thing");
     ASSERT_ELEM(thing);
     if (ako_elem_get_bool(thing) != true)
     {
@@ -116,16 +115,16 @@ int basic_value_first()
 
 int parse_float()
 {
-    ako_elem_t *egg = ako_parse("a 1.0 b 42.0 miku 39.39");
+    ako_elem_t* egg = ako_parse("a 1.0 b 42.0 miku 39.39");
     ASSERT_ELEM(egg);
 
-    ako_elem_t *a = ako_elem_table_get(egg, "a");
+    ako_elem_t* a = ako_elem_table_get(egg, "a");
     assert(ako_elem_get_float(a) == 1.0);
 
-    ako_elem_t *b = ako_elem_table_get(egg, "b");
+    ako_elem_t* b = ako_elem_table_get(egg, "b");
     assert(ako_elem_get_float(b) == 42.0);
 
-    ako_elem_t *miku = ako_elem_table_get(egg, "miku");
+    ako_elem_t* miku = ako_elem_table_get(egg, "miku");
     assert(ako_elem_get_float(miku) == 39.39);
 
     ako_elem_destroy(egg);
@@ -134,10 +133,10 @@ int parse_float()
 
 int parse_string_esc()
 {
-    ako_elem_t *egg = ako_parse("viva \"viva \\\"happy\\\"\"");
+    ako_elem_t* egg = ako_parse("viva \"viva \\\"happy\\\"\"");
     ASSERT_ELEM(egg);
 
-    ako_elem_t *viva = ako_elem_table_get(egg, "viva");
+    ako_elem_t* viva = ako_elem_table_get(egg, "viva");
     ASSERT_ELEM(viva);
 
     ASSERT_ELEM_STR(viva, "viva \"happy\"");
@@ -148,10 +147,10 @@ int parse_string_esc()
 
 int parse_short_type()
 {
-    ako_elem_t *egg = ako_parse("mi &ku window.width 55");
+    ako_elem_t* egg = ako_parse("mi &ku window.width 55");
     ASSERT_ELEM(egg);
 
-    ako_elem_t *mi = ako_elem_table_get(egg, "mi");
+    ako_elem_t* mi = ako_elem_table_get(egg, "mi");
     ASSERT_ELEM(mi);
 
     if (ako_elem_get_type(mi) != AT_SHORTTYPE)
@@ -161,7 +160,7 @@ int parse_short_type()
         return 1;
     }
 
-    const char *value = ako_elem_get_shorttype(mi);
+    const char* value = ako_elem_get_shorttype(mi);
     if (strcmp(value, "ku") != 0)
     {
         printf("Expected ku got %s\n", value);
@@ -175,10 +174,10 @@ int parse_short_type()
 
 int parse_multi_short_type()
 {
-    ako_elem_t *egg = ako_parse("viva &viva.happy window.width 55");
+    ako_elem_t* egg = ako_parse("viva &viva.happy window.width 55");
     ASSERT_ELEM(egg);
 
-    ako_elem_t *viva = ako_elem_table_get(egg, "viva");
+    ako_elem_t* viva = ako_elem_table_get(egg, "viva");
     ASSERT_ELEM(viva);
 
     if (ako_elem_get_type(viva) != AT_SHORTTYPE)
@@ -188,7 +187,7 @@ int parse_multi_short_type()
         return 1;
     }
 
-    const char *value = ako_elem_get_shorttype(viva);
+    const char* value = ako_elem_get_shorttype(viva);
     if (strcmp(value, "viva.happy") != 0)
     {
         printf("Expected viva.happy got %s\n", value);
@@ -202,14 +201,14 @@ int parse_multi_short_type()
 
 int basic_serialise()
 {
-    ako_elem_t *root = ako_elem_create(AT_TABLE);
+    ako_elem_t* root = ako_elem_create(AT_TABLE);
 
     ako_elem_table_add(root, "title", ako_elem_create_string("CATS RULE THE WORLD"));
     ako_elem_table_add(root, "artist", ako_elem_create_string("daniwellP"));
     ako_elem_table_add(root, "player", ako_elem_create_shorttype("Players.Plexamp"));
 
-    const char *expected = "title \"CATS RULE THE WORLD\"\nartist \"daniwellP\"\nplayer &Players.Plexamp\n";
-    const char *actual = ako_serialize(root, NULL, ASF_FORMAT);
+    const char* expected = "title \"CATS RULE THE WORLD\"\nartist \"daniwellP\"\nplayer &Players.Plexamp\n";
+    const char* actual = ako_serialize(root, NULL, ASF_FORMAT);
 
     if (strcmp(expected, actual) != 0)
     {
@@ -258,7 +257,7 @@ static test_t tests[] = {
     {NULL, NULL} // Null terminator
 };
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     return test_runner(tests);
 }
