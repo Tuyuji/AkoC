@@ -165,7 +165,8 @@ int main(int argc, char **argv)
             fclose(file);
             return 1;
         }
-        (void)fread((char*)state.source, 1, file_size, file);
+        size_t ignored = fread((char*)state.source, 1, file_size, file);
+        (void)ignored;
         ((char*)state.source)[file_size] = '\0';
         fclose(file);
     }
