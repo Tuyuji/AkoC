@@ -54,16 +54,16 @@ ako_elem_t* ako_parse(const char* source)
     }
 
     ako_elem_t* err = NULL;
-    dyn_array_t tokens = ako_tokenize(source, &err);
+    dyn_array_t tokens = ako_tokenize(source, &err, false);
     if (err != NULL)
     {
-        //uh oh
+        // uh oh
         return err;
     }
 
     if (tokens.size == 0)
     {
-        //no tokens
+        // no tokens
         return NULL;
     }
 

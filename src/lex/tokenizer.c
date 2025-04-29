@@ -24,6 +24,7 @@ typedef struct state
     const char* source;
     size_t source_len;
     size_t index;
+    bool ignore_floats;
 
     location_t meta;
     location_t current_loc;
@@ -110,6 +111,11 @@ static size_t count_number(state_t* state)
     while (has_value(state, offset))
     {
         char c = peek(state, offset);
+        if (state->ignore_floats && c == '.')
+        {
+            // Ignoring floats and found a dot, were done :)
+            break;
+        }
         if (isdigit(c) || c == '.')
         {
             // good number!
@@ -225,7 +231,7 @@ static bool parse_digit(state_t* state, ako_elem_t** err)
     return true;
 }
 
-dyn_array_t ako_tokenize(const char* source, ako_elem_t** err)
+dyn_array_t ako_tokenize(const char* source, ako_elem_t** err, bool ignore_floats)
 {
     static dyn_array_t empty_array = {0};
     *err = NULL;
@@ -235,6 +241,7 @@ dyn_array_t ako_tokenize(const char* source, ako_elem_t** err)
     state->tokens = dyn_array_create(sizeof(token_t));
     state->source = source;
     state->source_len = strlen(source);
+    state->ignore_floats = ignore_floats;
     state->current_loc.line = 1;
     state->current_loc.column = 1;
     token_t token;
@@ -363,7 +370,7 @@ dyn_array_t ako_tokenize(const char* source, ako_elem_t** err)
                     {
                         // Failed to parse number and we had an X before, this isn't valid
                         *err = ako_elem_create_errorf("Failed to parse vector at %zu:%zu", vector_delimiter.line,
-                                vector_delimiter.column);
+                                                      vector_delimiter.column);
                         dyn_array_destroy(&state->tokens);
                         return empty_array;
                     }
@@ -428,7 +435,7 @@ dyn_array_t ako_tokenize(const char* source, ako_elem_t** err)
             continue;
         }
 
-        //If were here then we have a bad character
+        // If were here then we have a bad character
         *err = ako_elem_create_errorf("Unknown character %c at %zu:%zu", c, state->meta.line, state->meta.column);
         dyn_array_destroy(&state->tokens);
         return empty_array;

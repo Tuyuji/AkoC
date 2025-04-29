@@ -73,3 +73,9 @@ ako_elem_t* ako_elem_create_shorttype(const char* str);
 ako_elem_t* ako_elem_create_bool(bool value);
 ako_elem_t* ako_elem_create_error(const char* error);
 ako_elem_t* ako_elem_create_errorf(const char* fmt, ...);
+
+// Accepts a path in ako format: e.g "song.artist"
+// Returns the found element or NULL if not found
+// If an error occurs, it will return an error element
+// If ignore_error is true, it will return NULL if an error occurs
+ako_elem_t* ako_elem_get(ako_elem_t* root, const char* path);
