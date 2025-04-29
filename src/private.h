@@ -8,13 +8,13 @@
 
 typedef struct table_elem
 {
-    const char *key;
-    ako_elem_t *value;
+    const char* key;
+    ako_elem_t* value;
 } table_elem_t;
 
 typedef struct array_elem
 {
-    ako_elem_t *item;
+    ako_elem_t* item;
 } array_elem_t;
 
 typedef union elem {
@@ -26,11 +26,11 @@ typedef struct ako_elem
 {
     ako_type_t type;
     union {
-        const char *str; // String, ShortType
+        const char* str; // String, ShortType
         ako_int i;       // Int, Bool(1 true, 0 false)
         ako_float f;
         dyn_array_t a; // stores an array of elem_t
     };
 } ako_elem_t;
 
-extern char *empty;
+extern char* empty;

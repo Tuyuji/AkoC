@@ -4,4 +4,4 @@
 #include "token.h"
 #include <ako/elem.h>
 
-ako_elem_t *ako_parse_tokens(dyn_array_t *tokens);
+ako_elem_t* ako_parse_tokens(dyn_array_t* tokens);

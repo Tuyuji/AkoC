@@ -10,18 +10,18 @@
 
 #define IS_TABLE_OR_ARRAY(type) (type == AT_TABLE || type == AT_ARRAY)
 
-static const char *string_cpy(const char *source)
+static const char* string_cpy(const char* source)
 {
     size_t len = strlen(source);
     size_t size = len + 1;
-    char *str = ako_malloc(size);
+    char* str = ako_malloc(size);
     memcpy(str, source, size);
     return str;
 }
 
-ako_elem_t *ako_elem_create(ako_type_t type)
+ako_elem_t* ako_elem_create(ako_type_t type)
 {
-    ako_elem_t *elem = ako_malloc(sizeof(ako_elem_t));
+    ako_elem_t* elem = ako_malloc(sizeof(ako_elem_t));
     if (elem == NULL)
     {
         return NULL;
@@ -31,20 +31,20 @@ ako_elem_t *ako_elem_create(ako_type_t type)
     return elem;
 }
 
-void ako_elem_destroy(ako_elem_t *elem)
+void ako_elem_destroy(ako_elem_t* elem)
 {
     assert(elem != NULL);
 
     if (IS_TABLE_OR_ARRAY(elem->type))
     {
         // iterate over the dyn array and free the elements
-        dyn_array_t *array = &elem->a;
+        dyn_array_t* array = &elem->a;
         if (elem->type == AT_TABLE)
         {
             for (size_t i = 0; i < array->size; ++i)
             {
-                table_elem_t *tableElem = dyn_array_get(array, i);
-                ako_free((void *)tableElem->key);
+                table_elem_t* tableElem = dyn_array_get(array, i);
+                ako_free((void*)tableElem->key);
                 ako_elem_destroy(tableElem->value);
             }
         }
@@ -52,7 +52,7 @@ void ako_elem_destroy(ako_elem_t *elem)
         {
             for (size_t i = 0; i < array->size; ++i)
             {
-                array_elem_t *arrayElem = dyn_array_get(array, i);
+                array_elem_t* arrayElem = dyn_array_get(array, i);
                 ako_elem_destroy(arrayElem->item);
             }
         }
@@ -64,13 +64,13 @@ void ako_elem_destroy(ako_elem_t *elem)
     if (elem->type == AT_STRING || elem->type == AT_SHORTTYPE || elem->type == AT_ERROR)
     {
         // free the string
-        ako_free((void *)elem->str);
+        ako_free((void*)elem->str);
     }
 
     ako_free(elem);
 }
 
-void ako_elem_set_type(ako_elem_t *elem, ako_type_t new_type)
+void ako_elem_set_type(ako_elem_t* elem, ako_type_t new_type)
 {
     assert(elem != NULL);
     if (elem->type == new_type)
@@ -97,24 +97,24 @@ void ako_elem_set_type(ako_elem_t *elem, ako_type_t new_type)
     elem->type = new_type;
 }
 
-ako_type_t ako_elem_get_type(ako_elem_t *elem)
+ako_type_t ako_elem_get_type(ako_elem_t* elem)
 {
     assert(elem != NULL);
     return elem->type;
 }
 
-bool ako_elem_is_error(ako_elem_t *elem)
+bool ako_elem_is_error(ako_elem_t* elem)
 {
     assert(elem != NULL);
     return elem->type == AT_ERROR;
 }
 
-static table_elem_t *ako_table_find(ako_elem_t *table, const char *key)
+static table_elem_t* ako_table_find(ako_elem_t* table, const char* key)
 {
-    dyn_array_t *array = &table->a;
+    dyn_array_t* array = &table->a;
     for (size_t i = 0; i < array->size; ++i)
     {
-        table_elem_t *tableElem = dyn_array_get(array, i);
+        table_elem_t* tableElem = dyn_array_get(array, i);
         if (strcmp(tableElem->key, key) == 0)
         {
             return tableElem;
@@ -123,7 +123,7 @@ static table_elem_t *ako_table_find(ako_elem_t *table, const char *key)
     return NULL;
 }
 
-ako_elem_t *ako_elem_table_add(ako_elem_t *table, const char *key, ako_elem_t *value)
+ako_elem_t* ako_elem_table_add(ako_elem_t* table, const char* key, ako_elem_t* value)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
@@ -138,13 +138,13 @@ ako_elem_t *ako_elem_table_add(ako_elem_t *table, const char *key, ako_elem_t *v
     return value;
 }
 
-ako_elem_t *ako_elem_table_get(ako_elem_t *table, const char *key)
+ako_elem_t* ako_elem_table_get(ako_elem_t* table, const char* key)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
     assert(key != NULL);
 
-    table_elem_t *elem = ako_table_find(table, key);
+    table_elem_t* elem = ako_table_find(table, key);
     if (elem == NULL)
     {
         return NULL;
@@ -152,7 +152,7 @@ ako_elem_t *ako_elem_table_get(ako_elem_t *table, const char *key)
     return elem->value;
 }
 
-size_t ako_elem_table_get_length(ako_elem_t *table)
+size_t ako_elem_table_get_length(ako_elem_t* table)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
@@ -160,39 +160,39 @@ size_t ako_elem_table_get_length(ako_elem_t *table)
     return table->a.size;
 }
 
-const char *ako_elem_table_get_key_at(ako_elem_t *table, size_t index)
+const char* ako_elem_table_get_key_at(ako_elem_t* table, size_t index)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
 
-    table_elem_t *elem = dyn_array_get(&table->a, index);
+    table_elem_t* elem = dyn_array_get(&table->a, index);
     assert(elem != NULL);
     return elem->key;
 }
 
-ako_elem_t *ako_elem_table_get_value_at(ako_elem_t *table, size_t index)
+ako_elem_t* ako_elem_table_get_value_at(ako_elem_t* table, size_t index)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
 
-    table_elem_t *elem = dyn_array_get(&table->a, index);
+    table_elem_t* elem = dyn_array_get(&table->a, index);
     assert(elem != NULL);
     return elem->value;
 }
 
-void ako_elem_table_remove(ako_elem_t *table, const char *key)
+void ako_elem_table_remove(ako_elem_t* table, const char* key)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
     assert(key != NULL);
 
-    table_elem_t *elem = NULL;
+    table_elem_t* elem = NULL;
     size_t elem_idx = 0;
 
-    dyn_array_t *array = &table->a;
+    dyn_array_t* array = &table->a;
     for (size_t i = 0; i < array->size; ++i)
     {
-        table_elem_t *tableElem = dyn_array_get(array, i);
+        table_elem_t* tableElem = dyn_array_get(array, i);
         if (strcmp(tableElem->key, key) == 0)
         {
             // found it!
@@ -203,23 +203,23 @@ void ako_elem_table_remove(ako_elem_t *table, const char *key)
 
     if (elem != NULL)
     {
-        ako_free((void *)elem->key);
+        ako_free((void*)elem->key);
         ako_elem_destroy(elem->value);
         dyn_array_remove(array, elem_idx);
     }
 }
 
-bool ako_elem_table_contains(ako_elem_t *table, const char *key)
+bool ako_elem_table_contains(ako_elem_t* table, const char* key)
 {
     assert(table != NULL);
     assert(table->type == AT_TABLE);
     assert(key != NULL);
 
-    table_elem_t *elem = ako_table_find(table, key);
+    table_elem_t* elem = ako_table_find(table, key);
     return elem != NULL;
 }
 
-ako_elem_t *ako_elem_array_add(ako_elem_t *array, ako_elem_t *value)
+ako_elem_t* ako_elem_array_add(ako_elem_t* array, ako_elem_t* value)
 {
     assert(array != NULL);
     assert(array->type == AT_ARRAY);
@@ -232,112 +232,112 @@ ako_elem_t *ako_elem_array_add(ako_elem_t *array, ako_elem_t *value)
     return value;
 }
 
-ako_elem_t *ako_elem_array_get(ako_elem_t *array, size_t index)
+ako_elem_t* ako_elem_array_get(ako_elem_t* array, size_t index)
 {
     assert(array != NULL);
     assert(array->type == AT_ARRAY);
     assert(index < array->a.size);
 
-    array_elem_t *elem = dyn_array_get(&array->a, index);
+    array_elem_t* elem = dyn_array_get(&array->a, index);
     assert(elem != NULL);
     return elem->item;
 }
 
-size_t ako_elem_array_get_length(ako_elem_t *array)
+size_t ako_elem_array_get_length(ako_elem_t* array)
 {
     assert(array != NULL);
     assert(array->type == AT_ARRAY);
     return array->a.size;
 }
 
-void ako_elem_array_remove(ako_elem_t *array, size_t index)
+void ako_elem_array_remove(ako_elem_t* array, size_t index)
 {
     assert(array != NULL);
     assert(array->type == AT_ARRAY);
     assert(index < array->a.size);
 
-    array_elem_t *elem = dyn_array_get(&array->a, index);
+    array_elem_t* elem = dyn_array_get(&array->a, index);
     assert(elem != NULL);
 
     ako_elem_destroy(elem->item);
     dyn_array_remove(&array->a, index);
 }
 
-void ako_elem_set_null(ako_elem_t *elem)
+void ako_elem_set_null(ako_elem_t* elem)
 {
     assert(elem != NULL);
     ako_elem_set_type(elem, AT_NULL);
 }
 
-void ako_elem_set_string(ako_elem_t *elem, const char *str)
+void ako_elem_set_string(ako_elem_t* elem, const char* str)
 {
     assert(elem != NULL);
     assert(str != NULL);
     ako_elem_set_type(elem, AT_STRING);
     if (elem->str != NULL)
     {
-        ako_free((void *)elem->str);
+        ako_free((void*)elem->str);
     }
     elem->str = string_cpy(str);
 }
 
-void ako_elem_set_int(ako_elem_t *elem, ako_int value)
+void ako_elem_set_int(ako_elem_t* elem, ako_int value)
 {
     assert(elem != NULL);
     ako_elem_set_type(elem, AT_INT);
     elem->i = value;
 }
 
-void ako_elem_set_float(ako_elem_t *elem, ako_float value)
+void ako_elem_set_float(ako_elem_t* elem, ako_float value)
 {
     assert(elem != NULL);
     ako_elem_set_type(elem, AT_FLOAT);
     elem->f = value;
 }
 
-void ako_elem_set_shorttype(ako_elem_t *elem, const char *str)
+void ako_elem_set_shorttype(ako_elem_t* elem, const char* str)
 {
     assert(elem != NULL);
     ako_elem_set_type(elem, AT_SHORTTYPE);
     elem->str = string_cpy(str);
 }
 
-void ako_elem_set_bool(ako_elem_t *elem, bool value)
+void ako_elem_set_bool(ako_elem_t* elem, bool value)
 {
     assert(elem != NULL);
     ako_elem_set_type(elem, AT_BOOL);
     elem->i = value ? 1 : 0;
 }
 
-const char *ako_elem_get_string(ako_elem_t *elem)
+const char* ako_elem_get_string(ako_elem_t* elem)
 {
     assert(elem != NULL);
     assert((elem->type == AT_STRING || elem->type == AT_ERROR));
     return elem->str;
 }
 
-ako_int ako_elem_get_int(ako_elem_t *elem)
+ako_int ako_elem_get_int(ako_elem_t* elem)
 {
     assert(elem != NULL);
     assert(elem->type == AT_INT);
     return elem->i;
 }
 
-ako_float ako_elem_get_float(ako_elem_t *elem)
+ako_float ako_elem_get_float(ako_elem_t* elem)
 {
     assert(elem != NULL);
     assert(elem->type == AT_FLOAT);
     return elem->f;
 }
 
-const char *ako_elem_get_shorttype(ako_elem_t *elem)
+const char* ako_elem_get_shorttype(ako_elem_t* elem)
 {
     assert(elem != NULL);
     assert(elem->type == AT_SHORTTYPE);
     return elem->str;
 }
 
-bool ako_elem_get_bool(ako_elem_t *elem)
+bool ako_elem_get_bool(ako_elem_t* elem)
 {
     assert(elem != NULL);
     assert(elem->type == AT_BOOL);
@@ -348,50 +348,50 @@ bool ako_elem_get_bool(ako_elem_t *elem)
     return true;
 }
 
-ako_elem_t *ako_elem_create_int(ako_int value)
+ako_elem_t* ako_elem_create_int(ako_int value)
 {
-    ako_elem_t *elem = ako_elem_create(AT_INT);
+    ako_elem_t* elem = ako_elem_create(AT_INT);
     ako_elem_set_int(elem, value);
     return elem;
 }
 
-ako_elem_t *ako_elem_create_float(ako_float value)
+ako_elem_t* ako_elem_create_float(ako_float value)
 {
-    ako_elem_t *elem = ako_elem_create(AT_FLOAT);
+    ako_elem_t* elem = ako_elem_create(AT_FLOAT);
     ako_elem_set_float(elem, value);
     return elem;
 }
 
-ako_elem_t *ako_elem_create_string(const char *str)
+ako_elem_t* ako_elem_create_string(const char* str)
 {
-    ako_elem_t *elem = ako_elem_create(AT_STRING);
+    ako_elem_t* elem = ako_elem_create(AT_STRING);
     ako_elem_set_string(elem, str);
     return elem;
 }
 
-ako_elem_t *ako_elem_create_shorttype(const char *str)
+ako_elem_t* ako_elem_create_shorttype(const char* str)
 {
-    ako_elem_t *elem = ako_elem_create(AT_SHORTTYPE);
+    ako_elem_t* elem = ako_elem_create(AT_SHORTTYPE);
     ako_elem_set_shorttype(elem, str);
     return elem;
 }
 
-ako_elem_t *ako_elem_create_bool(bool value)
+ako_elem_t* ako_elem_create_bool(bool value)
 {
-    ako_elem_t *elem = ako_elem_create(AT_BOOL);
+    ako_elem_t* elem = ako_elem_create(AT_BOOL);
     ako_elem_set_bool(elem, value);
     return elem;
 }
 
-ako_elem_t *ako_elem_create_error(const char *error)
+ako_elem_t* ako_elem_create_error(const char* error)
 {
     // Same as string but with a different type
-    ako_elem_t *elem = ako_elem_create(AT_ERROR);
+    ako_elem_t* elem = ako_elem_create(AT_ERROR);
     elem->str = string_cpy(error);
     return elem;
 }
 
-ako_elem_t *ako_elem_create_errorf(const char *fmt, ...)
+ako_elem_t* ako_elem_create_errorf(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -401,12 +401,12 @@ ako_elem_t *ako_elem_create_errorf(const char *fmt, ...)
     size_t len = vsnprintf(NULL, 0, fmt, args_copy);
     va_end(args);
 
-    char *str = ako_malloc(len + 1);
+    char* str = ako_malloc(len + 1);
 
     vsnprintf(str, len + 1, fmt, args);
     va_end(args);
 
-    ako_elem_t *elem = ako_elem_create(AT_ERROR);
+    ako_elem_t* elem = ako_elem_create(AT_ERROR);
     elem->str = str;
     return elem;
 }

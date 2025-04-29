@@ -25,7 +25,7 @@ typedef enum
     AKO_TT_MAX
 } token_type_t;
 
-static const char *TokenType_Strings[AKO_TT_MAX] = {
+static const char* TokenType_Strings[AKO_TT_MAX] = {
     [AKO_TT_NONE] = "None",
     [AKO_TT_BOOL] = "Bool",
     [AKO_TT_INT] = "Int",
@@ -59,12 +59,12 @@ typedef struct
     union {
         ako_int value_int;        // BOOL, INT
         ako_float value_float;    // FLOAT
-        const char *value_string; // STRING, IDENT | This is malloced, please free once done :3
+        const char* value_string; // STRING, IDENT | This is malloced, please free once done :3
     };
 } token_t;
 
-size_t location_format(const location_t *loc, char *output, size_t output_size);
+size_t location_format(const location_t* loc, char* output, size_t output_size);
 
 // Returns an array of Token_t, please destroy the returned array when finished :)
-dyn_array_t ako_tokenize(const char *source, char **err);
-void ako_free_tokens(dyn_array_t *tokens);
+dyn_array_t ako_tokenize(const char* source, char** err);
+void ako_free_tokens(dyn_array_t* tokens);

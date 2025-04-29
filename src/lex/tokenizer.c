@@ -13,12 +13,14 @@
 #if defined(_MSC_VER)
 #include <malloc.h>
 #define alloca _alloca
+#else
+#include <alloca.h>
 #endif
 
 typedef struct state
 {
     dyn_array_t tokens;
-    const char *source;
+    const char* source;
     size_t source_len;
     size_t index;
 
@@ -26,7 +28,7 @@ typedef struct state
     location_t current_loc;
 } state_t;
 
-static char consume(state_t *state)
+static char consume(state_t* state)
 {
     if (state->index >= state->source_len)
     {
@@ -45,7 +47,7 @@ static char consume(state_t *state)
     return next;
 }
 
-static bool has_value(state_t *state, size_t offset)
+static bool has_value(state_t* state, size_t offset)
 {
     if (state->index + offset >= state->source_len)
     {
@@ -54,7 +56,7 @@ static bool has_value(state_t *state, size_t offset)
     return true;
 }
 
-static char peek(state_t *state, size_t offset)
+static char peek(state_t* state, size_t offset)
 {
     if (!has_value(state, offset))
     {
@@ -65,12 +67,12 @@ static char peek(state_t *state, size_t offset)
     return state->source[state->index + offset];
 }
 
-static void start_meta(state_t *state)
+static void start_meta(state_t* state)
 {
     state->meta = state->current_loc;
 }
 
-static void add_token(state_t *state, token_t token)
+static void add_token(state_t* state, token_t token)
 {
     token.start = state->meta;
     token.end = state->current_loc;
@@ -82,7 +84,7 @@ static bool is_valid_id(char in)
     return isalpha(in) || in == '_';
 }
 
-static size_t count_id(state_t *state)
+static size_t count_id(state_t* state)
 {
     size_t offset = 0;
     while (has_value(state, offset))
@@ -101,7 +103,7 @@ static size_t count_id(state_t *state)
     return offset;
 }
 
-static size_t count_number(state_t *state)
+static size_t count_number(state_t* state)
 {
     size_t offset = 0;
     while (has_value(state, offset))
@@ -124,7 +126,7 @@ static size_t count_number(state_t *state)
 // Should be here when executing this function:
 //  "Hello, World"
 //	^
-static size_t count_string(state_t *state)
+static size_t count_string(state_t* state)
 {
     size_t offset = 0;
     while (has_value(state, offset))
@@ -154,7 +156,7 @@ static size_t count_string(state_t *state)
     return offset;
 }
 
-size_t location_format(const location_t *loc, char *output, size_t output_size)
+size_t location_format(const location_t* loc, char* output, size_t output_size)
 {
     // figure out how much space we need
     size_t size = snprintf(NULL, 0, "%zu:%zu", loc->line, loc->column);
@@ -175,7 +177,7 @@ size_t location_format(const location_t *loc, char *output, size_t output_size)
     return written;
 }
 
-static bool parse_digit(state_t *state, char **err)
+static bool parse_digit(state_t* state, char** err)
 {
     *err = NULL;
     token_t token;
@@ -187,7 +189,7 @@ static bool parse_digit(state_t *state, char **err)
     }
 
     size_t num_bytesize = sizeof(char) * num_size + 1;
-    char *num = alloca(num_bytesize);
+    char* num = alloca(num_bytesize);
     memset(num, '\0', num_bytesize);
     for (size_t i = 0; i < num_size; ++i)
     {
@@ -197,7 +199,7 @@ static bool parse_digit(state_t *state, char **err)
             is_floating = true;
         }
     }
-    char *numerr = NULL;
+    char* numerr = NULL;
     errno = 0;
     if (is_floating)
     {
@@ -222,11 +224,11 @@ static bool parse_digit(state_t *state, char **err)
     return true;
 }
 
-dyn_array_t ako_tokenize(const char *source, char **err)
+dyn_array_t ako_tokenize(const char* source, char** err)
 {
     static dyn_array_t empty_array = {0};
 
-    state_t *state = alloca(sizeof(state_t));
+    state_t* state = alloca(sizeof(state_t));
     memset(state, 0, sizeof(state_t));
     state->tokens = dyn_array_create(sizeof(token_t));
     state->source = source;
@@ -329,7 +331,7 @@ dyn_array_t ako_tokenize(const char *source, char **err)
         {
             size_t id_size = count_id(state);
             size_t id_bytesize = sizeof(char) * id_size + 1;
-            char *id = ako_malloc(id_bytesize);
+            char* id = ako_malloc(id_bytesize);
             memset(id, '\0', id_bytesize);
             for (size_t i = 0; i < id_size; ++i)
             {
@@ -390,10 +392,10 @@ dyn_array_t ako_tokenize(const char *source, char **err)
             consume(state);
             size_t char_count = count_string(state);
             size_t str_bytesize = sizeof(char) * char_count + 1;
-            char *str = ako_malloc(str_bytesize);
+            char* str = ako_malloc(str_bytesize);
             memset(str, '\0', str_bytesize);
 
-            char *iter = str;
+            char* iter = str;
             while (has_value(state, 0))
             {
                 char cc = consume(state);
@@ -433,14 +435,14 @@ dyn_array_t ako_tokenize(const char *source, char **err)
     return state->tokens;
 }
 
-void ako_free_tokens(dyn_array_t *tokens)
+void ako_free_tokens(dyn_array_t* tokens)
 {
     for (size_t i = 0; i < tokens->size; ++i)
     {
-        token_t *token = dyn_array_get(tokens, i);
+        token_t* token = dyn_array_get(tokens, i);
         if (token->type == AKO_TT_STRING || token->type == AKO_TT_IDENT)
         {
-            ako_free((void *)token->value_string);
+            ako_free((void*)token->value_string);
         }
     }
 

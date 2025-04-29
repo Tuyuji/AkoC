@@ -12,9 +12,9 @@
 #include "mem/dyn_string.h"
 #include "private.h"
 
-char *empty = NULL;
+char* empty = NULL;
 
-ako_alloc_t *ako_alloc_get()
+ako_alloc_t* ako_alloc_get()
 {
     static ako_alloc_t ako_alloc = {0};
     if (ako_alloc.malloc_func == NULL)
@@ -26,29 +26,29 @@ ako_alloc_t *ako_alloc_get()
     return &ako_alloc;
 }
 
-void *ako_malloc(size_t size)
+void* ako_malloc(size_t size)
 {
     return ako_alloc_get()->malloc_func(size);
 }
 
-void ako_free(void *ptr)
+void ako_free(void* ptr)
 {
     ako_alloc_get()->free_func(ptr);
 }
 
-void *ako_realloc(void *ptr, size_t size)
+void* ako_realloc(void* ptr, size_t size)
 {
     return ako_alloc_get()->realloc_func(ptr, size);
 }
 
-void ako_free_string(const char *str)
+void ako_free_string(const char* str)
 {
-    ako_alloc_get()->free_func((void *)str);
+    ako_alloc_get()->free_func((void*)str);
 }
 
-ako_elem_t *ako_parse(const char *source)
+ako_elem_t* ako_parse(const char* source)
 {
-    static char *err = NULL;
+    static char* err = NULL;
     dyn_array_t tokens = ako_tokenize(source, &err);
     if (tokens.size == 0)
     {
@@ -91,13 +91,13 @@ ako_elem_t *ako_parse(const char *source)
         printf("\n");
     }*/
 
-    ako_elem_t *result = ako_parse_tokens(&tokens);
+    ako_elem_t* result = ako_parse_tokens(&tokens);
     ako_free_tokens(&tokens);
 
     return result;
 }
 
-void _make_indent(dyn_string_t *out, const char *indent, size_t level)
+void _make_indent(dyn_string_t* out, const char* indent, size_t level)
 {
     assert(out != NULL);
     assert(indent != NULL);
@@ -107,7 +107,7 @@ void _make_indent(dyn_string_t *out, const char *indent, size_t level)
     }
 }
 
-void _serialise(dyn_string_t *str, ako_elem_t *elem, const char *indent, size_t cur_indent, bool first_run, char **err)
+void _serialise(dyn_string_t* str, ako_elem_t* elem, const char* indent, size_t cur_indent, bool first_run, char** err)
 {
     if (err == NULL)
     {
@@ -122,7 +122,7 @@ void _serialise(dyn_string_t *str, ako_elem_t *elem, const char *indent, size_t 
     }
 
     size_t len = 0;
-    const char *end = (indent[0] != '\0') ? "\n" : " ";
+    const char* end = (indent[0] != '\0') ? "\n" : " ";
     switch (elem->type)
     {
     case AT_BOOL:
@@ -156,7 +156,7 @@ void _serialise(dyn_string_t *str, ako_elem_t *elem, const char *indent, size_t 
         bool is_vector = (len <= 4);
         for (size_t i = 0; i < len; i++)
         {
-            ako_elem_t *ae = ako_elem_array_get(elem, i);
+            ako_elem_t* ae = ako_elem_array_get(elem, i);
             if (!ae && (ae->type != AT_INT && ae->type != AT_FLOAT))
             {
                 is_vector = false;
@@ -174,7 +174,7 @@ void _serialise(dyn_string_t *str, ako_elem_t *elem, const char *indent, size_t 
         {
             for (size_t i = 0; i < len; i++)
             {
-                ako_elem_t *ae = ako_elem_array_get(elem, i);
+                ako_elem_t* ae = ako_elem_array_get(elem, i);
                 if (ae->type == AT_INT)
                 {
                     dyn_string_append_fmt(str, "%d", ae->i);
@@ -229,8 +229,8 @@ void _serialise(dyn_string_t *str, ako_elem_t *elem, const char *indent, size_t 
 
         for (size_t i = 0; i < len; i++)
         {
-            const char *key = ako_elem_table_get_key_at(elem, i);
-            ako_elem_t *value = ako_elem_table_get_value_at(elem, i);
+            const char* key = ako_elem_table_get_key_at(elem, i);
+            ako_elem_t* value = ako_elem_table_get_value_at(elem, i);
 
             _make_indent(str, indent, indenting);
 
@@ -271,7 +271,7 @@ void _serialise(dyn_string_t *str, ako_elem_t *elem, const char *indent, size_t 
     }
 }
 
-const char *ako_serialize(ako_elem_t *elem, char **err, ako_serialize_flags_t flags)
+const char* ako_serialize(ako_elem_t* elem, char** err, ako_serialize_flags_t flags)
 {
     if (err == NULL)
     {
@@ -280,7 +280,7 @@ const char *ako_serialize(ako_elem_t *elem, char **err, ako_serialize_flags_t fl
 
     *err = NULL;
 
-    char *indent = "\t";
+    char* indent = "\t";
     if (flags & ASF_USE_SPACES)
     {
         indent = "    ";

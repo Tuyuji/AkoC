@@ -11,8 +11,8 @@ typedef double ako_float;
 
 typedef struct
 {
-    void *(*malloc_func)(size_t);
-    void (*free_func)(void *);
-    void *(*realloc_func)(void *, size_t);
-    void *userdata;
+    void* (*malloc_func)(size_t);
+    void (*free_func)(void*);
+    void* (*realloc_func)(void*, size_t);
+    void* userdata;
 } ako_alloc_t;

@@ -8,7 +8,7 @@
 #include "ako/ako.h"
 #include "dyn_string.h"
 
-void dyn_string_realloc(dyn_string_t *str, size_t new_capacity)
+void dyn_string_realloc(dyn_string_t* str, size_t new_capacity)
 {
     if (str->capacity == new_capacity)
     {
@@ -25,7 +25,7 @@ void dyn_string_realloc(dyn_string_t *str, size_t new_capacity)
 
     if (str->capacity < new_capacity)
     {
-        char *new_data = ako_realloc(str->data, new_capacity);
+        char* new_data = ako_realloc(str->data, new_capacity);
         assert(new_data != NULL);
         str->data = new_data;
         str->capacity = new_capacity;
@@ -41,7 +41,7 @@ dyn_string_t dyn_string_create(size_t initial_capacity)
     return str;
 }
 
-void dyn_string_append(dyn_string_t *str, const char *data)
+void dyn_string_append(dyn_string_t* str, const char* data)
 {
     size_t len = strlen(data);
     dyn_string_realloc(str, str->size + len + 1);
@@ -50,7 +50,7 @@ void dyn_string_append(dyn_string_t *str, const char *data)
     str->data[str->size] = '\0';
 }
 
-void dyn_string_append_fmt(dyn_string_t *str, const char *fmt, ...)
+void dyn_string_append_fmt(dyn_string_t* str, const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -69,7 +69,7 @@ void dyn_string_append_fmt(dyn_string_t *str, const char *fmt, ...)
     str->size += len;
 }
 
-void dyn_string_append_char(dyn_string_t *str, char c)
+void dyn_string_append_char(dyn_string_t* str, char c)
 {
     dyn_string_realloc(str, str->size + 2);
     str->data[str->size] = c;
@@ -77,7 +77,7 @@ void dyn_string_append_char(dyn_string_t *str, char c)
     str->data[str->size] = '\0';
 }
 
-void dyn_string_clear(dyn_string_t *str)
+void dyn_string_clear(dyn_string_t* str)
 {
     // Sets the entire data buffer to '\0' but keeps the allocated memory
     memset(str->data, '\0', str->capacity);

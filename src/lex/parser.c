@@ -11,23 +11,23 @@
 
 typedef struct
 {
-    dyn_array_t *tokens;
+    dyn_array_t* tokens;
     size_t index;
 } state_t;
 
-static token_t *_consume(state_t *state)
+static token_t* _consume(state_t* state)
 {
     if (state->index >= state->tokens->size)
     {
         return NULL;
     }
 
-    token_t *token = dyn_array_get(state->tokens, state->index);
+    token_t* token = dyn_array_get(state->tokens, state->index);
     state->index++;
     return token;
 }
 
-static token_t *peek(state_t *state, size_t offset)
+static token_t* peek(state_t* state, size_t offset)
 {
     if (state->index + offset >= state->tokens->size)
     {
@@ -37,9 +37,9 @@ static token_t *peek(state_t *state, size_t offset)
     return dyn_array_get(state->tokens, state->index + offset);
 }
 
-static bool __check_peek_type(state_t *state, size_t offset, token_type_t type)
+static bool __check_peek_type(state_t* state, size_t offset, token_type_t type)
 {
-    token_t *token = peek(state, offset);
+    token_t* token = peek(state, offset);
     if (token == NULL)
     {
         return false;
@@ -49,16 +49,16 @@ static bool __check_peek_type(state_t *state, size_t offset, token_type_t type)
 
 #define CHECK_TYPE(token, checktype) (token != NULL && token->type == checktype)
 
-static ako_elem_t *_parse_array(state_t *state);
-static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces);
-static ako_elem_t *_parse_value(state_t *state);
+static ako_elem_t* _parse_array(state_t* state);
+static ako_elem_t* _parse_table(state_t* state, bool should_ignore_braces);
+static ako_elem_t* _parse_value(state_t* state);
 
-static ako_elem_t *_parse_value(state_t *state)
+static ako_elem_t* _parse_value(state_t* state)
 {
-    token_t *peeked = peek(state, 0);
+    token_t* peeked = peek(state, 0);
     location_t start_loc;
     dyn_string_t str; // Used in short type
-    ako_elem_t *ret;
+    ako_elem_t* ret;
     switch (peeked->type)
     {
     case AKO_TT_OPEN_D_BRACE:
@@ -76,7 +76,7 @@ static ako_elem_t *_parse_value(state_t *state)
         start_loc = peeked->start;
         if (CHECK_TYPE(peek(state, 1), AKO_TT_VECTORCROSS))
         {
-            ako_elem_t *array = ako_elem_create(AT_ARRAY);
+            ako_elem_t* array = ako_elem_create(AT_ARRAY);
             // we can override peeked at this point since we will either error out or return the array
             while (peek(state, 0) != NULL)
             {
@@ -89,7 +89,7 @@ static ako_elem_t *_parse_value(state_t *state)
                 }
 
                 peeked = _consume(state);
-                ako_elem_t *elem = NULL;
+                ako_elem_t* elem = NULL;
                 if (peeked->type == AKO_TT_INT)
                 {
                     elem = ako_elem_create_int(peeked->value_int);
@@ -169,19 +169,19 @@ static ako_elem_t *_parse_value(state_t *state)
     return ako_elem_create_errorf("Unexpected escape from switch statement.");
 }
 
-static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
+static ako_elem_t* _parse_table_element(state_t* state, ako_elem_t* table)
 {
     assert(state != NULL);
     assert(table != NULL);
     assert(table->type == AT_TABLE);
 
-    token_t *peeked = peek(state, 0);
+    token_t* peeked = peek(state, 0);
     if (peeked == NULL)
     {
         return ako_elem_create_error("Unexpected end of table element.");
     }
 
-    token_t *value_first = NULL;
+    token_t* value_first = NULL;
     if (CHECK_TYPE(peeked, AKO_TT_MINUS) || CHECK_TYPE(peeked, AKO_TT_PLUS) || CHECK_TYPE(peeked, AKO_TT_SEMICOLON))
     {
         value_first = _consume(state);
@@ -197,13 +197,13 @@ static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
         }
     }
 
-    ako_elem_t *current_table = table;
-    const char *ct_id = NULL;
+    ako_elem_t* current_table = table;
+    const char* ct_id = NULL;
 
     while (peek(state, 0) != NULL &&
            (CHECK_TYPE(peek(state, 0), AKO_TT_IDENT) || CHECK_TYPE(peek(state, 0), AKO_TT_STRING)))
     {
-        const char *id = _consume(state)->value_string;
+        const char* id = _consume(state)->value_string;
         bool still_more = __check_peek_type(state, 0, AKO_TT_DOT);
 
         if (!still_more)
@@ -223,7 +223,7 @@ static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
         {
             // Not the last id
             // see if the id in the table, id not create a new table there
-            ako_elem_t *test = ako_elem_table_get(current_table, id);
+            ako_elem_t* test = ako_elem_table_get(current_table, id);
             if (test == NULL)
             {
                 test = ako_elem_create(AT_TABLE);
@@ -263,7 +263,7 @@ static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
     }
     else
     {
-        ako_elem_t *value = _parse_value(state);
+        ako_elem_t* value = _parse_value(state);
         if (ako_elem_is_error(value))
         {
             // Uh oh, just return the error
@@ -277,9 +277,9 @@ static ako_elem_t *_parse_table_element(state_t *state, ako_elem_t *table)
     return NULL;
 }
 
-static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces)
+static ako_elem_t* _parse_table(state_t* state, bool should_ignore_braces)
 {
-    token_t *peeked = peek(state, 0);
+    token_t* peeked = peek(state, 0);
     if (!should_ignore_braces)
     {
         if (CHECK_TYPE(peeked, AKO_TT_OPEN_BRACE))
@@ -292,7 +292,7 @@ static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces)
         }
     }
 
-    ako_elem_t *table = ako_elem_create(AT_TABLE);
+    ako_elem_t* table = ako_elem_create(AT_TABLE);
     while (peek(state, 0) != NULL && peek(state, 0)->type != AKO_TT_CLOSE_BRACE)
     {
         // We need {id, value} or {value, id} pairs
@@ -302,9 +302,9 @@ static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces)
             return ako_elem_create_error("Expected two tokens, got zero/one.");
         }
 
-        bool has_valid_first_token = (peeked->type == AKO_TT_IDENT || peeked->type == AKO_TT_STRING ||
-                                      peeked->type == AKO_TT_PLUS || peeked->type == AKO_TT_MINUS ||
-                                      peeked->type == AKO_TT_SEMICOLON);
+        bool has_valid_first_token =
+            (peeked->type == AKO_TT_IDENT || peeked->type == AKO_TT_STRING || peeked->type == AKO_TT_PLUS ||
+             peeked->type == AKO_TT_MINUS || peeked->type == AKO_TT_SEMICOLON);
 
         if (!has_valid_first_token)
         {
@@ -313,7 +313,7 @@ static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces)
                                           TokenType_Strings[peeked->type]);
         }
 
-        ako_elem_t *err = _parse_table_element(state, table);
+        ako_elem_t* err = _parse_table_element(state, table);
         if (err != NULL)
         {
             // Uh oh, just return the error
@@ -336,9 +336,9 @@ static ako_elem_t *_parse_table(state_t *state, bool should_ignore_braces)
     return table;
 }
 
-static ako_elem_t *_parse_array(state_t *state)
+static ako_elem_t* _parse_array(state_t* state)
 {
-    token_t *peeked = peek(state, 0);
+    token_t* peeked = peek(state, 0);
     if (CHECK_TYPE(peeked, AKO_TT_OPEN_D_BRACE))
     {
         _consume(state);
@@ -353,11 +353,11 @@ static ako_elem_t *_parse_array(state_t *state)
                                       peeked->start.column, peeked->end.line, peeked->end.column);
     }
 
-    ako_elem_t *array = ako_elem_create(AT_ARRAY);
+    ako_elem_t* array = ako_elem_create(AT_ARRAY);
 
     while (peek(state, 0) != NULL && peek(state, 0)->type != AKO_TT_CLOSE_D_BRACE)
     {
-        ako_elem_t *elem = _parse_value(state);
+        ako_elem_t* elem = _parse_value(state);
         if (elem == NULL)
         {
             ako_elem_destroy(array);
@@ -384,13 +384,13 @@ static ako_elem_t *_parse_array(state_t *state)
     return ako_elem_create_error("Expected a closing double brace.");
 }
 
-ako_elem_t *ako_parse_tokens(dyn_array_t *tokens)
+ako_elem_t* ako_parse_tokens(dyn_array_t* tokens)
 {
     state_t state;
     state.tokens = tokens;
     state.index = 0;
 
-    token_t *peeked = peek(&state, 0);
+    token_t* peeked = peek(&state, 0);
     if (peeked == NULL)
     {
         return ako_elem_create_error("No tokens to parse");

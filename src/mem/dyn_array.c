@@ -17,7 +17,7 @@ dyn_array_t dyn_array_create(size_t element_size)
     return array;
 }
 
-void dyn_array_destroy(dyn_array_t *array)
+void dyn_array_destroy(dyn_array_t* array)
 {
     if (array->internal.data != NULL)
     {
@@ -26,14 +26,14 @@ void dyn_array_destroy(dyn_array_t *array)
     memset(array, 0, sizeof(dyn_array_t));
 }
 
-void *dyn_array_elem_location(dyn_array_t *array, size_t index)
+void* dyn_array_elem_location(dyn_array_t* array, size_t index)
 {
     da_assert(array != NULL, "Null array pointer.");
 
-    return (uint8_t *)array->internal.data + (array->internal.element_size * index);
+    return (uint8_t*)array->internal.data + (array->internal.element_size * index);
 }
 
-void dyn_array_resize(dyn_array_t *array, size_t new_size)
+void dyn_array_resize(dyn_array_t* array, size_t new_size)
 {
     da_assert(array != NULL, "Null pointer.");
     da_assert(array->internal.element_size != 0, "Element size cant be zero.");
@@ -42,7 +42,7 @@ void dyn_array_resize(dyn_array_t *array, size_t new_size)
     // need new data pointers that can store the new data
     // first how much memory do we need?
     size_t new_memory_size = array->internal.element_size * new_size;
-    void *new_data;
+    void* new_data;
     if (array->internal.data == NULL)
     {
         new_data = ako_malloc(new_memory_size);
@@ -58,7 +58,7 @@ void dyn_array_resize(dyn_array_t *array, size_t new_size)
     array->internal.total_size = new_size;
 }
 
-void dyn_array_append(dyn_array_t *array, void *data, size_t size)
+void dyn_array_append(dyn_array_t* array, void* data, size_t size)
 {
     da_assert(array != NULL, "Null array pointer.");
     da_assert(data != NULL, "Null data pointer.");
@@ -73,13 +73,13 @@ void dyn_array_append(dyn_array_t *array, void *data, size_t size)
         dyn_array_resize(array, array->internal.total_size * 2);
     }
 
-    void *element_location = dyn_array_elem_location(array, array->size);
+    void* element_location = dyn_array_elem_location(array, array->size);
     memcpy(element_location, data, size);
     // done, it's good!
     array->size++;
 }
 
-void *dyn_array_get(dyn_array_t *array, size_t index)
+void* dyn_array_get(dyn_array_t* array, size_t index)
 {
     da_assert(array != NULL, "Null array pointer.");
     da_assert(array->size > index, "Index outside array size.");
@@ -87,16 +87,16 @@ void *dyn_array_get(dyn_array_t *array, size_t index)
     return dyn_array_elem_location(array, index);
 }
 
-void dyn_array_remove(dyn_array_t *array, size_t index)
+void dyn_array_remove(dyn_array_t* array, size_t index)
 {
     da_assert(array != NULL, "Null array pointer.");
     da_assert(array->size > index, "Index outside array size.");
 
-    void *element_location = (uint8_t *)array->internal.data + (array->internal.element_size * index);
+    void* element_location = (uint8_t*)array->internal.data + (array->internal.element_size * index);
 
     if (index < array->size - 1)
     {
-        void *next_element_location = (uint8_t *)element_location + array->internal.element_size;
+        void* next_element_location = (uint8_t*)element_location + array->internal.element_size;
         size_t bytes_to_move = (array->size - index - 1) * array->internal.element_size;
         memmove(element_location, next_element_location, bytes_to_move);
     }
