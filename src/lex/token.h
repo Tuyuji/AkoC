@@ -65,6 +65,8 @@ typedef struct
 
 size_t location_format(const location_t* loc, char* output, size_t output_size);
 
+typedef struct ako_elem ako_elem_t;
+
 // Returns an array of Token_t, please destroy the returned array when finished :)
-dyn_array_t ako_tokenize(const char* source, char** err);
+dyn_array_t ako_tokenize(const char* source, ako_elem_t** err);
 void ako_free_tokens(dyn_array_t* tokens);

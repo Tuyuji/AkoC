@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "ako/ako.h"
+#include "ako/elem.h"
 #include "token.h"
 
 #if defined(_MSC_VER)
@@ -177,7 +178,7 @@ size_t location_format(const location_t* loc, char* output, size_t output_size)
     return written;
 }
 
-static bool parse_digit(state_t* state, char** err)
+static bool parse_digit(state_t* state, ako_elem_t** err)
 {
     *err = NULL;
     token_t token;
@@ -215,7 +216,7 @@ static bool parse_digit(state_t* state, char** err)
     if (errno != 0 || strlen(numerr) > 0)
     {
         // Failed
-        sprintf(*err, "Failed to parse number at %zu:%zu", state->meta.line, state->meta.column);
+        *err = ako_elem_create_errorf("Failed to parse number at %zu:%zu", state->meta.line, state->meta.column);
         dyn_array_destroy(&state->tokens);
         return false;
     }
@@ -224,9 +225,10 @@ static bool parse_digit(state_t* state, char** err)
     return true;
 }
 
-dyn_array_t ako_tokenize(const char* source, char** err)
+dyn_array_t ako_tokenize(const char* source, ako_elem_t** err)
 {
     static dyn_array_t empty_array = {0};
+    *err = NULL;
 
     state_t* state = alloca(sizeof(state_t));
     memset(state, 0, sizeof(state_t));
@@ -241,7 +243,7 @@ dyn_array_t ako_tokenize(const char* source, char** err)
     while (has_value(state, 0))
     {
         char c = peek(state, 0);
-        if (c == ' ' || c == '\n')
+        if (c == ' ' || c == '\n' || c == '\t')
         {
             consume(state);
             continue;
@@ -360,7 +362,7 @@ dyn_array_t ako_tokenize(const char* source, char** err)
                     if (!parse_digit(state, err))
                     {
                         // Failed to parse number and we had an X before, this isn't valid
-                        sprintf(*err, "Failed to parse vector at %zu:%zu", vector_delimiter.line,
+                        *err = ako_elem_create_errorf("Failed to parse vector at %zu:%zu", vector_delimiter.line,
                                 vector_delimiter.column);
                         dyn_array_destroy(&state->tokens);
                         return empty_array;
@@ -375,16 +377,11 @@ dyn_array_t ako_tokenize(const char* source, char** err)
                 continue;
             }
         }
-        else
+        else if (*err != NULL && ako_elem_is_error(*err))
         {
             // if theres an error set then we failed to parse in a bad way
-            if (*err != NULL)
-            {
-                // Failed to parse number
-                sprintf(*err, "Failed to parse number at %zu:%zu", state->meta.line, state->meta.column);
-                dyn_array_destroy(&state->tokens);
-                return empty_array;
-            }
+            dyn_array_destroy(&state->tokens);
+            return empty_array;
         }
 
         if (c == '"')
@@ -430,6 +427,11 @@ dyn_array_t ako_tokenize(const char* source, char** err)
             add_token(state, token);
             continue;
         }
+
+        //If were here then we have a bad character
+        *err = ako_elem_create_errorf("Unknown character %c at %zu:%zu", c, state->meta.line, state->meta.column);
+        dyn_array_destroy(&state->tokens);
+        return empty_array;
     }
 
     return state->tokens;
