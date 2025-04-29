@@ -454,6 +454,7 @@ ako_elem_t* ako_elem_get(ako_elem_t* root, const char* path)
                     goto giveup;
                 }
                 elem = ako_elem_array_get(elem, token->value_int);
+                goto valid;
             }
             else
             {
@@ -464,8 +465,10 @@ ako_elem_t* ako_elem_get(ako_elem_t* root, const char* path)
                 }
 
                 elem = ako_elem_table_get(elem, token->value_string);
+                goto valid;
             }
-            return elem;
+
+            goto giveup;
         }
 
         if (ako_elem_get_type(elem) == AT_ARRAY)
@@ -504,6 +507,10 @@ ako_elem_t* ako_elem_get(ako_elem_t* root, const char* path)
     }
 
 giveup:
-    dyn_array_destroy(&tokens);
+    ako_free_tokens(&tokens);
     return NULL;
+
+valid:
+    ako_free_tokens(&tokens);
+    return elem;
 }
