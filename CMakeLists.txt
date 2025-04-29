@@ -31,3 +31,6 @@ enable_testing()
 add_test(NAME akotest
         COMMAND $<TARGET_FILE:akotest>
 )
+
+# A bunch of small cli tools
+add_subdirectory(utils)
