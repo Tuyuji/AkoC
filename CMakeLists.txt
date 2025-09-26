@@ -18,7 +18,10 @@ add_library(akoc
         src/ako.c
         src/mem/dyn_string.c
         src/lex/parser.c)
-target_include_directories(akoc PUBLIC include)
+target_include_directories(akoc PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 
 #Test
 project(akotest C)
@@ -34,3 +37,45 @@ add_test(NAME akotest
 
 # A bunch of small cli tools
 add_subdirectory(utils)
+add_subdirectory(argsTest)
+
+include(GNUInstallDirs)
+
+install(TARGETS akoc
+    EXPORT akocTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(EXPORT akocTargets
+    FILE akocTargets.cmake
+    NAMESPACE akoc::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/akoc
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/akocConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/akocConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/akoc
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/akocConfigVersion.cmake"
+    VERSION ${akoc_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/akocConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/akocConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/akoc
+)
