@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 project(akoc
         LANGUAGES C
-        VERSION 0.1.0
+        VERSION 1.0.0
         DESCRIPTION "A C implementation of the Ako config language"
         HOMEPAGE_URL "https://github.com/Tuyuji/AkoC"
 )
