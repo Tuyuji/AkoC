@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "ako/ako.h"
+#include "lex/token.h"
 #include "private.h"
 
 #define IS_TABLE_OR_ARRAY(type) (type == AT_TABLE || type == AT_ARRAY)
@@ -408,5 +409,108 @@ ako_elem_t* ako_elem_create_errorf(const char* fmt, ...)
 
     ako_elem_t* elem = ako_elem_create(AT_ERROR);
     elem->str = str;
+    return elem;
+}
+
+ako_elem_t* ako_elem_get(ako_elem_t* root, const char* path)
+{
+    // When tokenizatio this will be our error checking
+    // once done were using this for our current table
+    ako_elem_t* elem;
+
+    dyn_array_t tokens = ako_tokenize(path, &elem, true);
+    if (elem != NULL)
+    {
+        ako_elem_destroy(elem);
+        return NULL;
+    }
+
+    // We only support a small subset of the tokens
+    //  We only support the following tokens: AKO_TT_IDENT AKO_TT_STRING AKO_TT_DOT AKO_TT_INT
+    elem = root;
+    for (size_t i = 0; i < tokens.size; ++i)
+    {
+        token_t* token = dyn_array_get(&tokens, i);
+        if (token->type != AKO_TT_IDENT && token->type != AKO_TT_STRING && token->type != AKO_TT_DOT &&
+            token->type != AKO_TT_INT)
+        {
+            // no clue what do with what ever token this is
+            goto giveup;
+        }
+
+        bool is_end = false;
+        if (i == tokens.size - 1)
+        {
+            is_end = true;
+        }
+
+        if (is_end)
+        {
+            if (ako_elem_get_type(elem) == AT_ARRAY)
+            {
+                // if its an array we only support int
+                if (token->type != AKO_TT_INT)
+                {
+                    goto giveup;
+                }
+                elem = ako_elem_array_get(elem, token->value_int);
+                goto valid;
+            }
+            else
+            {
+                // Only support string or ident at the end
+                if (!(token->type == AKO_TT_STRING || token->type == AKO_TT_IDENT))
+                {
+                    goto giveup;
+                }
+
+                elem = ako_elem_table_get(elem, token->value_string);
+                goto valid;
+            }
+
+            goto giveup;
+        }
+
+        if (ako_elem_get_type(elem) == AT_ARRAY)
+        {
+            if (token->type != AKO_TT_INT)
+            {
+                goto giveup;
+            }
+
+            elem = ako_elem_array_get(elem, token->value_int);
+        }
+        else
+        {
+            if (!(token->type == AKO_TT_STRING || token->type == AKO_TT_IDENT))
+            {
+                // Unsupported
+                goto giveup;
+            }
+
+            elem = ako_elem_table_get(elem, token->value_string);
+        }
+
+        if (elem == NULL)
+        {
+            goto giveup;
+        }
+
+        // ensure our next token is a dot
+        i++;
+        token = dyn_array_get(&tokens, i);
+        if (token->type != AKO_TT_DOT)
+        {
+            // Incorrect
+            goto giveup;
+        }
+    }
+
+giveup:
+    ako_free_tokens(&tokens);
+    return NULL;
+
+valid:
+    ako_free_tokens(&tokens);
     return elem;
 }

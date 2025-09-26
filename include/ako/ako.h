@@ -4,6 +4,7 @@
 #define AKO_VMAJOR 0
 #define AKO_VMINOR 1
 #define AKO_VPATCH 0
+#define AKO_VERSION_STR "0.1.0"
 
 #include <ako/elem.h>
 

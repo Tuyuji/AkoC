@@ -111,7 +111,7 @@ int basic_value_first()
 
     ako_elem_destroy(egg);
 
-    //now try: thing+, not really a VT but its the same idea
+    // now try: thing+, not really a VT but its the same idea
     egg = ako_parse("thing+");
     ASSERT_ELEM(egg);
     thing = ako_elem_table_get(egg, "thing");
@@ -253,6 +253,40 @@ int basic_serialise()
     return 0;
 }*/
 
+//
+const char* sample_ako =
+"song [\n"
+"    name \"The MMORPG ADDICTS ANTHEM\"\n"
+"    artists [[\n"
+"        [\n"
+"            name \"TENKOMORI\"\n"
+"            links [[\n"
+"                \"a\" \"b\" \"c\"\n"
+"            ]]\n"
+"        ]\n"
+"        [\n"
+"            name \"Hatsune Miku\"\n"
+"            links [[\n"
+"                \"e\" \"f\" \"g\"\n"
+"            ]]\n"
+"        ]\n"
+"    ]]\n"
+"]\n";
+
+int util_get()
+{
+    ako_elem_t* egg = ako_parse(sample_ako);
+    ASSERT_ELEM(egg);
+
+    ASSERT_ELEM_STR(ako_elem_get(egg, "song.artists.0.links.1"), "b");
+    ASSERT_ELEM_STR(ako_elem_get(egg, "song.artists.1.links.1"), "f");
+
+    ASSERT_ELEM_STR(ako_elem_get(egg, "song.artists.0.name"), "TENKOMORI");
+
+    ako_elem_destroy(egg);
+    return 0;
+}
+
 static test_t tests[] = {
     {"Basic parsing", &basic_parse},
     {"Basic value first parsing", &basic_value_first},
@@ -267,6 +301,8 @@ static test_t tests[] = {
     // Unicode
     // {"Unicode parsing", &unicode_parse},
 
+    // Utils
+    {"Utility Get", &util_get},
     {NULL, NULL} // Null terminator
 };
 

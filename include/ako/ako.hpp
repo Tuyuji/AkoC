@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-extern "C" {
+extern "C"
+{
 #include "ako.h"
 #include "elem.h"
 #include "types.h"

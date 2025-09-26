@@ -48,11 +48,23 @@ void ako_free_string(const char* str)
 
 ako_elem_t* ako_parse(const char* source)
 {
-    static char* err = NULL;
-    dyn_array_t tokens = ako_tokenize(source, &err);
+    if (source == NULL || strlen(source) == 0)
+    {
+        return NULL;
+    }
+
+    ako_elem_t* err = NULL;
+    dyn_array_t tokens = ako_tokenize(source, &err, false);
+    if (err != NULL)
+    {
+        // uh oh
+        return err;
+    }
+
     if (tokens.size == 0)
     {
-        return ako_elem_create_error(err);
+        // no tokens
+        return NULL;
     }
 
     /*for(size_t i = 0; i < tokens.size; i++)
