@@ -37,7 +37,6 @@ add_test(NAME akotest
 
 # A bunch of small cli tools
 add_subdirectory(utils)
-add_subdirectory(argsTest)
 
 include(GNUInstallDirs)
 
